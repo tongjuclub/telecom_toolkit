@@ -44,8 +44,20 @@ def get_sysauth_cookie_value(username, psd) -> str:
         Body:
         {resp.text}
         """)
-        raise Exception(f"Except 302 , but {resp} , maybe login failed .")
+        raise Exception(f"Except 302 , but {resp} , login failed ( maybe caused other device online ) .")
     return resp.cookies.get('sysauth')
+
+
+def logout() -> None:
+    _h1 = _headers.copy()
+    _h1['Content-Type'] = 'application/x-www-form-urlencoded'
+    _h1["Referer"] = "http://192.168.1.1/cgi-bin/luci"
+    resp = post(
+        "http://192.168.1.1/cgi-bin/luci/admin/logout",
+        headers=_h1,
+        allow_redirects=False
+    )
+    logger.info(f"logout , response is {resp}")
 
 
 def get_gwinfo(*, sysauth_cookie) -> Dict[str, Any]:
@@ -67,4 +79,7 @@ def get_pub_ip(*, sysauth_cookie):
 
 
 if __name__ == '__main__':
-    pass
+    # c = get_sysauth_cookie_value("useradmin", 'wihj9')
+    # logger.info(f"cookie = {c}")
+    # get_pub_ip(sysauth_cookie=c)
+    logout()
